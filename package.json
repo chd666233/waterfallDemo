@@ -1,0 +1,23 @@
+{
+  "name": "waterfall",
+  "version": "1.0.0",
+  "description": "一个瀑布流Demo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chd666233/waterfallDemo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chd666233/waterfallDemo/issues"
+  },
+  "homepage": "https://github.com/chd666233/waterfallDemo#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
