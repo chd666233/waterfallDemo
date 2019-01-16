@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    *{margin:0;padding:0;box-sizing: border-box;}
+    ul{list-style:none;float:left;}
+    img{width:100%;padding:3px}
+
+    
+  </style>
+</head>
+<body>
+  <div class="main">
+   <!--  <ul>
+      <li><img src="./img/u=1058620997,1120035642&fm=26&gp=0.jpg" alt=""></li>
+      <li><img src="./img/u=1067702170,1733218393&fm=15&gp=0.jpg" alt=""></li>
+      <li><img src="./img/u=1073430552,1501213442&fm=26&gp=0.jpg" alt=""></li>
+    </ul>
+    <ul>
+      <li><img src="./img/u=1073542350,3067615529&fm=26&gp=0.jpg" alt=""></li>
+      <li><img src="./img/u=1090539857,1689046890&fm=26&gp=0.jpg" alt=""></li>
+      <li><img src="./img/u=1098188988,2329872459&fm=26&gp=0.jpg" alt=""></li>
+    </ul>
+    <ul>
+      <li><img src="./img/u=1141699446,1987774991&fm=15&gp=0.jpg" alt=""></li>
+      <li><img src="./img/u=1154899513,1530211594&fm=26&gp=0.jpg" alt=""></li>
+      <li><img src="./img/u=1164126217,683816481&fm=26&gp=0.jpg" alt=""></li>
+    </ul>
+    <ul>
+      <li><img src="./img/u=1058620997,1120035642&fm=26&gp=0.jpg" alt=""></li>
+      <li><img src="./img/u=1067702170,1733218393&fm=15&gp=0.jpg" alt=""></li>
+      <li><img src="./img/u=1073430552,1501213442&fm=26&gp=0.jpg" alt=""></li>
+    </ul>
+    <ul>
+      <li><img src="./img/u=1204563601,4110727302&fm=26&gp=0.jpg" alt=""></li>
+      <li><img src="./img/u=1067702170,1733218393&fm=15&gp=0.jpg" alt=""></li>
+      <li><img src="./img/u=1073430552,1501213442&fm=26&gp=0.jpg" alt=""></li>
+    </ul> -->
+  </div>
+  <script>
+    (function(){
+      
+      
+      //获取屏幕宽度，设置列数，添加ul,设置ul宽度，循环小于列数每列添加一张图片，循环大于列数，给高度最低的列添加图片
+      //判断最低高度，最低高度大于视口高度停止循环，滚动判断卷起高度和视口高度的和大于最低高度，每列添加2张图片
+      var data=[];
+      var cols=5;
+      var fragment=document.createDocumentFragment();
+      var main=document.getElementsByClassName("main")[0];
+      var bodyW=parseFloat(getComputedStyle(document.body).width);
+      var ulW=parseInt(100/cols);
+      var viewH=window.innerHeight;
+      var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+      var initH=viewH+scrollTop;
+      var hArr=[];
+      var canScroll={state:false,index:0};
+      for(var i=0;i<cols;i++){
+        var ul=document.createElement("ul");
+        ul.style.width=ulW+"%";
+        /* var img=new Image();
+        img.src="./img/u=1073430552,1501213442&fm=26&gp=0.jpg";
+        ul.appendChild(img) */
+        fragment.appendChild(ul);
+        hArr[i]=0;
+      }
+      main.appendChild(fragment);
+      var uls=document.querySelectorAll(".main>ul");
+      
+
+      var xhr =new XMLHttpRequest();
+      xhr.onreadystatechange=function(){
+        if(xhr.readyState==4&&xhr.status==200){
+          data=JSON.parse(xhr.responseText);
+
+          addImg(data,hArr,uls,cols,initH,canScroll,0);
+          
+          
+          /* for(var index=0;index<5;index++){
+            if(index%(2*cols)+1==2*cols){
+              if(viewH<=Math.min(...hArr)){
+                break;
+              }
+              // console.log(viewH,Math.min(...hArr))
+              // console.log('========>',index);
+            }
+            var img=new Image();
+            img.src="./img/"+data[index];
+            console.log(hArr)
+            var i=hArr.indexOf(Math.min(...hArr));
+            uls[i].appendChild(img);
+            img.onload=function(){
+              console.log(getComputedStyle(uls[i]).height,i);
+              hArr[i]=parseFloat(getComputedStyle(uls[i]).height);
+            }
+          } */
+        }
+      }
+      xhr.open("get","data.json",true);
+      xhr.send(null);
+
+      window.onscroll=function(e){
+        var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+        var sH=viewH+scrollTop;
+        // console.log(Math.max(...hArr))
+        if(canScroll.state&&Math.max(...hArr)<=sH+50){
+          if(canScroll.index<data.length)
+            addImg(data,hArr,uls,cols,sH,canScroll,canScroll.index);
+          canScroll.state=false;
+        } 
+      }
+    })()
+
+    function addImg(data,hArr,uls,cols,sH,canScroll,index){
+      if(index>=data.length) return;
+      var img=new Image();
+      img.src="./img/"+data[index];
+      img.alt=index;
+      // console.log(hArr)
+      var i=hArr.indexOf(Math.min(...hArr));
+      uls[i].appendChild(img);
+      img.onload=function(){
+        // console.log(getComputedStyle(uls[i]).height,i);
+        hArr[i]=parseFloat(getComputedStyle(uls[i]).height);
+        index++;
+        if(index%(cols)+1==cols){
+          console.log(sH,Math.max(...hArr))
+          //ul的高度大于sH不加载，结束递归
+          if(sH<=Math.max(...hArr)){
+            canScroll.state=true;
+            canScroll.index=index;
+            return;
+          }
+        }
+        addImg(data,hArr,uls,cols,sH,canScroll,index);
+      }
+    }
+    
+  </script>
+</body>
+</html>
