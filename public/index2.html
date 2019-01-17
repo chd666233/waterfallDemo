@@ -118,6 +118,7 @@
         var sH=viewH+scrollTop;
         // console.log(Math.max(...hArr))
         //上一轮图片加载完毕并且卷起高度+视口高度大于最高列的高度，说明出现空白区域，可以继续加载图片
+        console.log(sH,Math.max(...hArr))
         if(canScroll.state&&Math.max(...hArr)<=sH+50){
           //如果所有图片已经加载完毕，不再加载图片
           if(canScroll.index<data.length)
@@ -146,8 +147,8 @@
         hArr[i]=parseFloat(getComputedStyle(uls[i]).height);
         //图片地址数组下标加1，为下一轮加载准备
         index++;
-        //如果添加了cols张图片，判断最高列的高度是否大于卷起高度+视口高度
-        if(index%(cols)+1==cols){
+        //如果添加了cols*2张图片(每次添加cols*2张图片后判断是否结束本轮加载)，判断最高列的高度是否大于卷起高度+视口高度
+        if(index%(cols*2)+1==cols*2){
           console.log(sH,Math.max(...hArr))
           //最高列的高度大于视口高度+卷起高度，结束该轮递归，不再继续添加图片
           if(sH<=Math.max(...hArr)){
