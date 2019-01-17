@@ -47,17 +47,26 @@
       
       //获取屏幕宽度，设置列数，添加ul,设置ul宽度，循环小于列数每列添加一张图片，循环大于列数，给高度最低的列添加图片
       //判断最低高度，最低高度大于视口高度停止循环，滚动判断卷起高度和视口高度的和大于最低高度，每列添加2张图片
+      //图片地址数组
       var data=[];
+      //列数，初步定为5列
       var cols=5;
+      //每列百分百
+      var ulW=parseInt(100/cols);
+      //每列高度数组
+      var hArr=[];
       var fragment=document.createDocumentFragment();
       var main=document.getElementsByClassName("main")[0];
       var bodyW=parseFloat(getComputedStyle(document.body).width);
-      var ulW=parseInt(100/cols);
+      //视口高度
       var viewH=window.innerHeight;
+      //卷起高度
       var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+      //页面一刷出来视口高度+卷起高度，因为上一次滚动到下面刷新后滚动条会自动到下面
       var initH=viewH+scrollTop;
-      var hArr=[];
+      //是否可以响应滚动时间，当图片正在加载不可以，当一次的图片加载完才可以
       var canScroll={state:false,index:0};
+      //创建cols列的ul，设置每列宽度百分比，初始化每列高度数组为0
       for(var i=0;i<cols;i++){
         var ul=document.createElement("ul");
         ul.style.width=ulW+"%";
@@ -74,8 +83,9 @@
       var xhr =new XMLHttpRequest();
       xhr.onreadystatechange=function(){
         if(xhr.readyState==4&&xhr.status==200){
+          //向服务器请求图片数组
           data=JSON.parse(xhr.responseText);
-
+          //将图片添加到页面
           addImg(data,hArr,uls,cols,initH,canScroll,0);
           
           
@@ -103,35 +113,48 @@
       xhr.send(null);
 
       window.onscroll=function(e){
+        //计算卷起高度+视口高度
         var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
         var sH=viewH+scrollTop;
         // console.log(Math.max(...hArr))
+        //上一轮图片加载完毕并且卷起高度+视口高度大于最高列的高度，说明出现空白区域，可以继续加载图片
         if(canScroll.state&&Math.max(...hArr)<=sH+50){
+          //如果所有图片已经加载完毕，不再加载图片
           if(canScroll.index<data.length)
             addImg(data,hArr,uls,cols,sH,canScroll,canScroll.index);
+          //滚动一次不再接收滚动事件，以免重复加载图片
           canScroll.state=false;
         } 
       }
     })()
-
+    //data图片地址数组，hArr每列高度数组，sH卷起高度+视口高度，canScroll是否可以滚动，index当前加载的图片地址下标
     function addImg(data,hArr,uls,cols,sH,canScroll,index){
+      //一次加载cols张图片，如果当次图片下标大于图片数组，不再继续加载图片
       if(index>=data.length) return;
+      //创建图片
       var img=new Image();
       img.src="./img/"+data[index];
       img.alt=index;
       // console.log(hArr)
+      //去除高度最低的列的下标，将图片加到该列
       var i=hArr.indexOf(Math.min(...hArr));
       uls[i].appendChild(img);
+      //图片加载完毕后，计算每列高度，否则计算的高度不准确
       img.onload=function(){
         // console.log(getComputedStyle(uls[i]).height,i);
+        //将当前列的高度更新到每列高度数组
         hArr[i]=parseFloat(getComputedStyle(uls[i]).height);
+        //图片地址数组下标加1，为下一轮加载准备
         index++;
+        //如果添加了cols张图片，判断最高列的高度是否大于卷起高度+视口高度
         if(index%(cols)+1==cols){
           console.log(sH,Math.max(...hArr))
-          //ul的高度大于sH不加载，结束递归
+          //最高列的高度大于视口高度+卷起高度，结束该轮递归，不再继续添加图片
           if(sH<=Math.max(...hArr)){
+            //图片加载完毕，可以接收滚动事件
             canScroll.state=true;
             canScroll.index=index;
+            //结束本轮图片加载
             return;
           }
         }
