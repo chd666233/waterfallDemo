@@ -66,7 +66,7 @@
       var initH=viewH+scrollTop;
       //是否可以响应滚动时间，当图片正在加载不可以，当一次的图片加载完才可以
       var canScroll={state:false,index:0};
-      //创建cols列的ul，设置每列宽度百分比，初始化每列高度数组为0
+      //创建cols的ul，设置每列宽度百分比，初始化每列高度数组为0
       for(var i=0;i<cols;i++){
         var ul=document.createElement("ul");
         ul.style.width=ulW+"%";
@@ -137,7 +137,7 @@
       img.src="./img/"+data[index];
       img.alt=index;
       // console.log(hArr)
-      //去除高度最低的列的下标，将图片加到该列
+      //获取高度最低的列的下标，将图片加到该列
       var i=hArr.indexOf(Math.min(...hArr));
       uls[i].appendChild(img);
       //图片加载完毕后，计算每列高度，否则计算的高度不准确
@@ -159,6 +159,7 @@
             return;
           }
         }
+        //未结束本轮加载，继续下一张
         addImg(data,hArr,uls,cols,sH,canScroll,index);
       }
     }
